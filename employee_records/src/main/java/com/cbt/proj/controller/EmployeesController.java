@@ -3,9 +3,11 @@ package com.cbt.proj.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +38,7 @@ public class EmployeesController {
 	}
 	
 	/**Get employee by ID */
+	// http://localhost:8080/api/employees?id=2
 	@GetMapping("/getById")
 	public Employee getEmployeeById(@RequestParam long id) {
 		return employeeServiceImpl.getEmployeeById(id);
@@ -44,7 +47,19 @@ public class EmployeesController {
 	// http://localhost:8080/api/employees/2
 	@GetMapping("/getByid/{id}")
 	public ResponseEntity<Employee> getEmpById(@PathVariable("id") long empId){
-		return new ResponseEntity<Employee>(employeeServiceImpl.getEmployeeById(empId), HttpStatus.CREATED);
+		return new ResponseEntity<>(employeeServiceImpl.getEmployeeById(empId), HttpStatus.CREATED);
+	}
+	
+	/** Update employee API call */
+	@PutMapping("/updateById/{id}")
+	public ResponseEntity<Employee> updateEmployee(@PathVariable("id") long id, @RequestBody Employee emp){
+		return new ResponseEntity<>(employeeServiceImpl.updateEmployee(emp, id), HttpStatus.OK);
+	}
+	/** Delete employee API call */
+	@DeleteMapping("/deleteById/{id}")
+	public ResponseEntity<String> deleteEmployee(@PathVariable("id") long id){
+		employeeServiceImpl.deleteEmployee(id);
+		return new ResponseEntity<>("Deleted successfully!!",HttpStatus.OK);
 	}
 
 }

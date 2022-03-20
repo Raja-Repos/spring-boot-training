@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cbt.proj.exception.ResourceNotFoundException;
 import com.cbt.proj.model.Employee;
 import com.cbt.proj.repository.EmployeeRepository;
 
@@ -27,14 +28,29 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public Employee getEmployeeById(long id) {
-		Optional<Employee> emp = employeeRepo.findById(id);
-		if(emp.isPresent()) {
-			return emp.get();
-		}
-		else {
-			throw new RuntimeException();
-		}
-		//return employeeRepo.findById(id).orElseThrow();
+		return employeeRepo.findById(id).orElseThrow(()
+				-> new ResourceNotFoundException("Employee", "ID", id));
+	}
+
+	@Override
+	public Employee updateEmployee(Employee emp, long id) {
+		Employee e = employeeRepo.findById(id).orElseThrow(()
+				-> new ResourceNotFoundException("Employee", "ID", id));
+		
+		e.setFirstName(emp.getFirstName());
+		e.setLastName(emp.getLastName());
+		e.setBranch(emp.getBranch());
+		
+		employeeRepo.save(e);
+		
+		return e;
+	}
+
+	@Override
+	public void deleteEmployee(long id) {
+		employeeRepo.findById(id).orElseThrow(() ->
+		 new ResourceNotFoundException("Employee", "ID", id));
+		employeeRepo.deleteById(id);
 	}
 
 }
