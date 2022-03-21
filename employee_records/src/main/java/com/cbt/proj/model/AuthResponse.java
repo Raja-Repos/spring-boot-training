@@ -4,7 +4,7 @@ public class AuthResponse {
 	
 	private final String jwt;
 	
-	AuthResponse(String jwt){
+	public AuthResponse(String jwt){
 		this.jwt = jwt;
 	}
 	

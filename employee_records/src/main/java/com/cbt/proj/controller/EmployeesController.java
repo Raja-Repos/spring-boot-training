@@ -22,6 +22,7 @@ import java.util.*;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cbt.proj.model.AuthRequest;
+import com.cbt.proj.model.AuthResponse;
 import com.cbt.proj.model.Employee;
 import com.cbt.proj.security.MyUserDetailService;
 import com.cbt.proj.service.EmployeeServiceImpl;
@@ -45,7 +46,7 @@ public class EmployeesController {
 	
 	/** Authentication purpose */
 	@PostMapping("/authenticate")
-	public ResponseEntity<String> authenticate(@RequestBody AuthRequest authRequest) throws Exception{
+	public ResponseEntity<?> authenticate(@RequestBody AuthRequest authRequest) throws Exception{
 		
 		try {
 			authManager.authenticate(
@@ -59,7 +60,7 @@ public class EmployeesController {
 		
 		String jwt = jwtUtils.generateToken(userDetails);
 		
-		return new ResponseEntity<>(jwt, HttpStatus.OK);
+		return ResponseEntity.ok(new AuthResponse(jwt));
 	}
 	
 	/** Create employee by API call */
