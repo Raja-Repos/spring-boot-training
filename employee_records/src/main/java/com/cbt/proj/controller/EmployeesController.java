@@ -3,6 +3,12 @@ package com.cbt.proj.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,15 +21,46 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.*;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cbt.proj.model.AuthRequest;
 import com.cbt.proj.model.Employee;
+import com.cbt.proj.security.MyUserDetailService;
 import com.cbt.proj.service.EmployeeServiceImpl;
+import com.cbt.proj.utils.JwtUtils;
 
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeesController {
 	
 	@Autowired
-	EmployeeServiceImpl employeeServiceImpl;
+	private EmployeeServiceImpl employeeServiceImpl;
+	
+	@Autowired
+	private AuthenticationManager authManager;
+	
+	@Autowired
+	private MyUserDetailService myUserDetails;
+	
+	@Autowired
+	private JwtUtils jwtUtils;
+	
+	/** Authentication purpose */
+	@PostMapping("/authenticate")
+	public ResponseEntity<String> authenticate(@RequestBody AuthRequest authRequest) throws Exception{
+		
+		try {
+			authManager.authenticate(
+					new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword()));
+		}
+		catch(BadCredentialsException e) {
+			System.out.println("Given username or password is wrong..");
+		}
+		
+		final UserDetails userDetails = myUserDetails.loadUserByUsername(authRequest.getUserName());
+		
+		String jwt = jwtUtils.generateToken(userDetails);
+		
+		return new ResponseEntity<>(jwt, HttpStatus.OK);
+	}
 	
 	/** Create employee by API call */
 	@PostMapping("/save")
